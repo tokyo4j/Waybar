@@ -38,7 +38,8 @@ class Task {
     MINIMIZED = (1 << 1),
     ACTIVE = (1 << 2),
     FULLSCREEN = (1 << 3),
-    INVALID = (1 << 4)
+    URGENT = (1 << 4),
+    INVALID = (1 << 5)
   };
   // made public so TaskBar can reorder based on configuration.
   Gtk::Button button;
@@ -97,6 +98,7 @@ class Task {
   bool minimized() const { return state_ & MINIMIZED; }
   bool active() const { return state_ & ACTIVE; }
   bool fullscreen() const { return state_ & FULLSCREEN; }
+  bool urgent() const { return state_ & URGENT; }
 
  public:
   /* Callbacks for the wlr protocol */

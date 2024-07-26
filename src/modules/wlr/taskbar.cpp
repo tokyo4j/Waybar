@@ -361,7 +361,8 @@ Task::~Task() {
 std::string Task::repr() const {
   std::stringstream ss;
   ss << "Task (" << id_ << ") " << title_ << " [" << app_id_ << "] <" << (active() ? "A" : "a")
-     << (maximized() ? "M" : "m") << (minimized() ? "I" : "i") << (fullscreen() ? "F" : "f") << ">";
+     << (maximized() ? "M" : "m") << (minimized() ? "I" : "i") << (fullscreen() ? "F" : "f")
+     << (urgent() ? "U" : "u") << ">";
 
   return ss.str();
 }
@@ -370,10 +371,11 @@ std::string Task::state_string(bool shortened) const {
   std::stringstream ss;
   if (shortened)
     ss << (minimized() ? "m" : "") << (maximized() ? "M" : "") << (active() ? "A" : "")
-       << (fullscreen() ? "F" : "");
+       << (fullscreen() ? "F" : "") << (urgent() ? "U" : "");
   else
     ss << (minimized() ? "minimized " : "") << (maximized() ? "maximized " : "")
-       << (active() ? "active " : "") << (fullscreen() ? "fullscreen " : "");
+       << (active() ? "active " : "") << (fullscreen() ? "fullscreen " : "")
+       << (urgent() ? "urgency " : "");
 
   std::string res = ss.str();
   if (shortened || res.empty())
@@ -485,6 +487,7 @@ void Task::handle_state(struct wl_array *state) {
     if (entry == ZWLR_FOREIGN_TOPLEVEL_HANDLE_V1_STATE_MINIMIZED) state_ |= MINIMIZED;
     if (entry == ZWLR_FOREIGN_TOPLEVEL_HANDLE_V1_STATE_ACTIVATED) state_ |= ACTIVE;
     if (entry == ZWLR_FOREIGN_TOPLEVEL_HANDLE_V1_STATE_FULLSCREEN) state_ |= FULLSCREEN;
+    if (entry == ZWLR_FOREIGN_TOPLEVEL_HANDLE_V1_STATE_DEMANDS_ATTENTION) state_ |= URGENT;
   }
 }
 
@@ -513,6 +516,12 @@ void Task::handle_done() {
     button.get_style_context()->add_class("fullscreen");
   } else if (!(state_ & FULLSCREEN)) {
     button.get_style_context()->remove_class("fullscreen");
+  }
+
+if (state_ & URGENT) {
+    button.get_style_context()->add_class("urgent");
+  } else if (!(state_ & FULLSCREEN)) {
+    button.get_style_context()->remove_class("urgent");
   }
 
   if (config_["active-first"].isBool() && config_["active-first"].asBool() && active())

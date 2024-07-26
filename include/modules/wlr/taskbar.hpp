@@ -107,6 +107,7 @@ class Task {
   void handle_state(struct wl_array *);
   void handle_done();
   void handle_closed();
+  void handle_needs_attention();
 
   /* Callbacks for Gtk events */
   bool handle_clicked(GdkEventButton *);

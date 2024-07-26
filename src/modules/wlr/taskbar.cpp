@@ -255,6 +255,10 @@ static void tl_handle_closed(void *data, struct zwlr_foreign_toplevel_handle_v1 
   return static_cast<Task *>(data)->handle_closed();
 }
 
+static void tl_handle_needs_attention(void *data, struct zwlr_foreign_toplevel_handle_v1 *handle) {
+  return static_cast<Task *>(data)->handle_needs_attention();
+}
+
 static const struct zwlr_foreign_toplevel_handle_v1_listener toplevel_handle_impl = {
     .title = tl_handle_title,
     .app_id = tl_handle_app_id,
@@ -264,6 +268,7 @@ static const struct zwlr_foreign_toplevel_handle_v1_listener toplevel_handle_imp
     .done = tl_handle_done,
     .closed = tl_handle_closed,
     .parent = tl_handle_parent,
+    .needs_attention = tl_handle_needs_attention,
 };
 
 static const std::vector<Gtk::TargetEntry> target_entries = {
@@ -505,6 +510,7 @@ void Task::handle_done() {
 
   if (state_ & ACTIVE) {
     button.get_style_context()->add_class("active");
+    button.get_style_context()->remove_class("urgent");
   } else if (!(state_ & ACTIVE)) {
     button.get_style_context()->remove_class("active");
   }
@@ -530,6 +536,11 @@ void Task::handle_closed() {
     button_visible_ = false;
   }
   tbar_->remove_task(id_);
+}
+
+void Task::handle_needs_attention() {
+  spdlog::debug("{} requested attention", repr());
+  button.get_style_context()->add_class("urgent");
 }
 
 bool Task::handle_clicked(GdkEventButton *bt) {

@@ -94,6 +94,8 @@ Task::Task(const waybar::Bar& bar, const Json::Value& config, Taskbar* tbar,
 
   button.set_relief(Gtk::RELIEF_NONE);
 
+  text_before_.set_ellipsize(Pango::EllipsizeMode::ELLIPSIZE_END);
+  text_after_.set_ellipsize(Pango::EllipsizeMode::ELLIPSIZE_END);
   content_.add(text_before_);
   content_.add(icon_);
   content_.add(text_after_);
@@ -573,6 +575,7 @@ Taskbar::Taskbar(const std::string& id, const waybar::Bar& bar, const Json::Valu
   }
   box_.get_style_context()->add_class(MODULE_CLASS);
   box_.get_style_context()->add_class("empty");
+  box_.set_homogeneous(true);
   event_box_.add(box_);
 
   struct wl_display* display = Client::inst()->wl_display;
@@ -716,7 +719,7 @@ void Taskbar::handle_finished() {
 }
 
 void Taskbar::add_button(Gtk::Button& bt) {
-  box_.pack_start(bt, false, false);
+  box_.pack_start(bt, true, true);
   box_.get_style_context()->remove_class("empty");
 }
 
